@@ -33,7 +33,7 @@ function Profiles() {
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
         >
-          <Avatar sx={{ width: 30, height: 30 }}
+          <Avatar sx={{ width: 34, height: 34 }}
             alt='TylerDangDev'
             src="https://avatars.githubusercontent.com/u/73952767?s=400&u=9ad1da9142e7d67edc92481ec83437fa3a4d65cb&v=4"
           />
