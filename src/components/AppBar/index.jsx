@@ -92,8 +92,8 @@ function AppBar() {
           sx={{
             minWidth: '120px',
             maxWidth: '170px',
-            '& label': { corlor: 'white' },
-            '& input': { corlor: 'white' },
+            '& label': { color: 'white' },
+            '& input': { color: 'white' },
             '& label.Mui-focused': { color: 'white' },
             '& .MuiOutlinedInput-root': {
               '& fieldset': { borderColor: 'white' },
