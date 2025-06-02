@@ -11,8 +11,7 @@ import ContentCopy from '@mui/icons-material/ContentCopy'
 import ContentPaste from '@mui/icons-material/ContentPaste'
 import Cloud from '@mui/icons-material/Cloud'
 import Divider from '@mui/material/Divider'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 
 function Workspaces() {
@@ -20,10 +19,10 @@ function Workspaces() {
   const open = Boolean(anchorEl)
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
-  };
+  }
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
   return (
     <Box>
       <Button
