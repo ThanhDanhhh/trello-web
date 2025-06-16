@@ -10,7 +10,7 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import { Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
-
+import { capitalizeFirstLetter } from '~/utils/formatters'
 
 const MENU_STYLES = {
   color: 'white',
@@ -26,7 +26,7 @@ const MENU_STYLES = {
   }
 }
 
-function BoardBar() {
+function BoardBar({ board }) {
   return (
     <Box sx={{
       width: '100%',
@@ -45,13 +45,13 @@ function BoardBar() {
         <Chip
           sx={MENU_STYLES}
           icon={<DashboardIcon />}
-          label="TylerDangDev MERN Stack Pro"
+          label={board?.title}
           clickable
         />
         <Chip
           sx={MENU_STYLES}
           icon={<VpnLockIcon />}
-          label="Public/Private workspace"
+          label={capitalizeFirstLetter(board?.type)}
           clickable
         />
         <Chip
@@ -88,7 +88,7 @@ function BoardBar() {
           }}
         >Invite</Button>
         <AvatarGroup
-          max= {6}
+          max={6}
           sx={{
             gap: '10px',
             '& .MuiSvgIcon-root': {
@@ -98,7 +98,7 @@ function BoardBar() {
               border: 'none',
               color: 'white',
               cursor: 'pointer',
-              '̃&: first-of-type': {bgcolor: '#a4b0be'}
+              '̃&: first-of-type': { bgcolor: '#a4b0be' }
             }
           }}
         >
@@ -118,14 +118,14 @@ function BoardBar() {
           <Tooltip title="TylerDangDev">
             <Avatar
               alt="TylerDangDev"
-                src="https://avatars.githubusercontent.com/u/73952767?s=400&u=9ad1da9142e7d67edc92481ec83437fa3a4d65cb&v=4"
+              src="https://avatars.githubusercontent.com/u/73952767?s=400&u=9ad1da9142e7d67edc92481ec83437fa3a4d65cb&v=4"
 
             />
           </Tooltip>
           <Tooltip title="TylerDangDev">
             <Avatar
               alt="TylerDangDev"
-               src="https://avatars.githubusercontent.com/u/73952767?s=400&u=9ad1da9142e7d67edc92481ec83437fa3a4d65cb&v=4"
+              src="https://avatars.githubusercontent.com/u/73952767?s=400&u=9ad1da9142e7d67edc92481ec83437fa3a4d65cb&v=4"
 
             />
           </Tooltip>
