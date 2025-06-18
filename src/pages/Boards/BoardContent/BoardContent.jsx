@@ -2,16 +2,28 @@ import Box from '@mui/material/Box'
 import ListColumns from './ListColumns/ListColumns'
 import { mapOrder } from '~/utils/sorts'
 
+import Column from './ListColumns/Column/Column'
+import Card from './ListColumns/Column/ListCards/Card/Card'
+
 import {
   DndContext,
   //  PointerSensor, 
   MouseSensor,
   TouchSensor,
   useSensor,
-  useSensors
+  useSensors,
+  DragOverlay,
+  defaultDropAnimationSideEffects
 } from '@dnd-kit/core'
 import { useEffect, useState } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
+import { CardTravelRounded } from '@mui/icons-material'
+
+
+const ACTIVIE_DRAG_ITEM_TYPE = {
+  COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
+  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
+}
 
 function BoardContent({ board }) {
   //https://docs.dndkit.com/api-documentation/sensors#usesensor
@@ -30,15 +42,31 @@ function BoardContent({ board }) {
 
   const [oderedColumns, setOrderedColumns] = useState([])
 
+  // cùng một thời điểm chỉ có một phần tử đang được kéo (column hoạc card)
+  const [activeDragItemId, setActiveDragItemId] = useState(null)
+  const [activeDragItemType, setActiveDragItemType] = useState(null)
+  const [activeDragItemData, setActiveDragItemData] = useState(null)
+
+
   useEffect(() => {
     setOrderedColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'))
   }, [board])
 
+
+  // Trigger khi bắt đàu một hành động kéo (drag)
+  const handleDragStart = (event) => {
+    // console.log('handleDragStart', event)
+    setActiveDragItemId(event?.active?.id)
+    setActiveDragItemType(event?.active?.data?.current?.columnId ? ACTIVIE_DRAG_ITEM_TYPE.CARD : ACTIVIE_DRAG_ITEM_TYPE.COLUMN)
+    setActiveDragItemData(event?.active?.data?.current)
+  }
+
+  // Trigger khi kết thúc một hành động kéo (drag) một phần tử => hành đọng thả drop
   const handleDragEnd = (event) => {
     // console.log('handleDragEnd', event)
     const { active, over } = event
 
-    // Kiểm tra nếu không tồn tại over(kéo linh tinh thì return luôm tránh lỗi)
+    // Kiểm tra nếu không tồn tại over(kéo linh tinh thì return luôm tránh lỗi) 
     if (!over) return
 
     // Nếu vị trí kéo thả thả khác với vị trí ban đầu
@@ -52,16 +80,34 @@ function BoardContent({ board }) {
       // Code arrayMove ở đây: dnd-kit/packages/sortable/src/arrayMove.ts
       const dndOrderedColumns = arrayMove(oderedColumns, oldIndex, newIndex)
       // 2 cái console.log dữ liệu này sau dùng để xử lý gọi API 
-      // const dndOrderedIds = dndOrderedColumns.map(c => c._id)
-      // console.log('dndOrderedIds: ', dndOrderedIds)
+      // const dndOrderedIds = dndOrderedColumns.map(c => c._id)      
+      // console.log('dndOrderedIds: ', dndOrderedIds)   
       // console.log('dndOrderedColumns: ', dndOrderedColumns)
 
       // Cập nhật lại state columns ban đầu sau khi đã kéo thả
       setOrderedColumns(dndOrderedColumns)
     }
+    setActiveDragItemId(null)
+    setActiveDragItemType(null)
+    setActiveDragItemData(null)
   }
+
+  console.log('activeDragItemData: ', activeDragItemData)
+  console.log('activeDragItemType: ', activeDragItemType)
+  console.log('activeDragItemId: ', activeDragItemId)
+
+  // Animation khi thả (Drop) phần tử - Test bằng cách kéo xong thả trực tiếp và nhìn phần tử giữ chổ overlay
+  const customdropAnimation = {
+    sideEffects: defaultDropAnimationSideEffects({
+      styles: { active: { opacity: '0.5', } }
+    })
+  }
+
   return (
-    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd} >
 
       <Box sx={{
         bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
@@ -70,10 +116,15 @@ function BoardContent({ board }) {
         p: '10px 0'
       }}>
         <ListColumns columns={oderedColumns} />
+        <DragOverlay dropAnimation={customdropAnimation}>
+          {!activeDragItemType && null}
+          {(activeDragItemType === ACTIVIE_DRAG_ITEM_TYPE.COLUMN) && <Column column={activeDragItemData} />}
+          {(activeDragItemType === ACTIVIE_DRAG_ITEM_TYPE.CARD) && <Card card={activeDragItemData} />}
+        </DragOverlay>
       </Box>
     </DndContext>
 
   )
-}
+} 0
 
 export default BoardContent
