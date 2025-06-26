@@ -193,7 +193,11 @@ function BoardContent({ board }) {
 
   return (
     <DndContext
+      // Cảm biến đã giản thích kỹ ở video số số30
       sensors={sensors}
+      // Thuật toán phát hiện va chạm chạ( nếu không có nóó thì card với cover lớn sẽ không kéo qua column được vì lúc nào này nó đang bị conflict giữ card và column colum0colucolum), 
+      // chúng ta sẽ dùng clossesrCorners thay vì closesrCenter
+      // https://docs.dndkit.com/api-documentation/context-provider/collision-detection-algorithms
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
