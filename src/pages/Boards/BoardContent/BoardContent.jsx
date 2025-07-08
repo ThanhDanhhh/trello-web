@@ -176,7 +176,7 @@ function BoardContent({ board }) {
       // Phải dùng tới activeDragItemData.columnId hoặc oldWhenDraggingCard._id  này vì (set từ bước handleDragStart) chứ không phải activeData trong scope handledragEnd 
       // này vì sau khi đi qua onDragOver tới đây là state của card đã bị cập nhật một lần rồi.
       if (oldColumnWhenDraggingCard._id !== overColumn._id) {
-
+        //
       } else {
         // Hành động ekso tảh Card trong cùng 1 cái column
 
