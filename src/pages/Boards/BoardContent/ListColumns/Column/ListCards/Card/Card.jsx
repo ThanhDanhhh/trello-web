@@ -1,4 +1,3 @@
-
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { Card as MuiCard } from '@mui/material'
@@ -14,12 +13,12 @@ import { CSS } from '@dnd-kit/utilities'
 function Card({ card }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card._id,
-    data: { ...card },
+    data: { ...card }
 
   })
 
   const dndKitCardStyles = {
-    // touchAction: 'none', // Dành cho sensors default dạn PointerSensor  
+    // touchAction: 'none', // Dành cho sensors default dạn PointerSensor
     //Nấu sử dụng CSS.transform hư docs sẽ lỗi stretch
     // https://github.com/clauderic/dnd-kit/issues/117
     transform: CSS.Translate.toString(transform),
@@ -37,7 +36,10 @@ function Card({ card }) {
       sx={{
         cursor: 'pointer',
         boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
-        overflow: 'unset'
+        overflow: 'unset',
+        display: card?.FE_PlaceholderCard ? 'none' : 'block'
+        // overFlow: card?.FE_PlaceholderCard ? 'hidden' : 'unset',
+        // height: card?.FE_PlaceholderCard ? '0px' : 'unset'
       }}
     >
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
