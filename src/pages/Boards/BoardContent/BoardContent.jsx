@@ -7,8 +7,8 @@ import Card from './ListColumns/Column/ListCards/Card/Card'
 
 import {
   DndContext,
-  MouseSensor,
-  TouchSensor,
+  // MouseSensor,
+  // TouchSensor,
   useSensor,
   useSensors,
   DragOverlay,
@@ -19,6 +19,7 @@ import {
   getFirstCollision
   // closestCenter
 } from '@dnd-kit/core'
+import { MouseSensor, TouchSensor } from '~/customLibraries/DndKitSensors'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
 import { cloneDeep, isEmpty } from 'lodash'
