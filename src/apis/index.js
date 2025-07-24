@@ -9,8 +9,22 @@ import { API_ROOT } from '~/utils/constants'
  * Hiểu đơn giản Interceptors là cách mà chúng ta sẽ đánh chặn vào giữ request hoặc responce để xử lý logic mà chúng ta muốn
  * (và học phần MERN Stacj Advance nâng cao sẽ dạy cực kỳ đầy đủ cách xử lý, áp dụng phần này chuẩn chỉnh cho các bạn.)
 */
+
+/** Boards */
 export const fetchBoardDetailsAPI = async (boardId) => {
   const response = await axios.get(`${API_ROOT}/v1/boards/${boardId}`)
   // Lưu ý: axios sẽ trả về kết quả vè qua property của nó là data
   return response.data
+}
+
+/** Columns */
+export const createNewColumnAPI = async (newColumnData) => {
+  const responce = await axios.post(`${API_ROOT}/v1/columns`, newColumnData)
+  return responce.data
+}
+
+/** Cards */
+export const createNewCardAPI = async (newCardData) => {
+  const responce = await axios.post(`${API_ROOT}/v1/cards`, newCardData)
+  return responce.data
 }

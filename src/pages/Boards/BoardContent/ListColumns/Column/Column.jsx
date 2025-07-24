@@ -25,7 +25,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
 
 
-function Column({ column }) {
+function Column({ column, createNewCard }) {
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
@@ -57,20 +57,32 @@ function Column({ column }) {
 
   const [newCardTitle, setNewCardTitle] = useState('')
 
-  const AddNewCard = () => {
+  const AddNewCard = async () => {
     if (!newCardTitle) {
       toast.error('Please enter Card Title!', { position: 'bottom-right' })
       return
     }
-    // console.log(newCardTitle)
-    // GỌI API Ở ĐÂY
+    // Tạo dữ liệu column để gọi API
+    const newCardData = {
+      title: newCardTitle,
+      columnId: column._id
+    }
+
+    /**
+    * Gọi lên props function createNewColumn nằm ở component cha ca nhất (boards/_id.jsx)
+    * Lưu ý: Về sau ở học phần MERN Stack Advance nâng cao thì chúng ta sẽ đưa dữ liệu Board ra ngoài Redux Global Store,
+    * và lúc này chúng ta có thể gọi luôn API ở đây là xong thay vì lần lượt gọi ngược lên những
+    * component cha phía trên. (Đối với component con nằm càng sâu thì cảng khổ :D)
+    * - Với việc sử dụng Redux như vậy thì code sẽ clean chuẩn chỉnh hơn rất nhiều.
+    */
+    await createNewCard(newCardData)
 
     // Đóng trạng thái thêm Card mới & clear Input
     toggleOpenNewCardForm()
     setNewCardTitle('')
   }
 
-  // pahir bọc div ở đây vì vấn đề chiều cao vì vấn đề chiều cao của column khi kéo thả sẽ có bug kiểu flickering
+  // phải bọc div ở đây vì vấn đề chiều cao vì vấn đề chiều cao của column khi kéo thả sẽ có bug kiểu flickering
   return (
     <div ref={setNodeRef} style={dndKitColumnStyles}{...attributes}>
       <Box
