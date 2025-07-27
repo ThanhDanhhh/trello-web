@@ -31,7 +31,7 @@ const ACTIVIE_DRAG_ITEM_TYPE = {
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-function BoardContent({ board, createNewColumn, createNewCard }) {
+function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
   //https://docs.dndkit.com/api-documentation/sensors#usesensor
   // nếu dùng Pointersensor mặc định thì phải kết hợp với thuộc tính CSS touch-action: none ở những phần tử kéo thả - nhưng mà còn bug
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
@@ -264,12 +264,17 @@ function BoardContent({ board, createNewColumn, createNewCard }) {
         // Dừng arrayMove của thằng dnd-kit để sắp xếp lại mảng colums ban đầu
         // Code arrayMove ở đây: dnd-kit/packages/sortable/src/arrayMove.ts
         const dndOrderedColumns = arrayMove(oderedColumns, oldColumnIndex, newColumnIndex)
-        // 2 cái console.log dữ liệu này sau dùng để xử lý gọi API
-        // const dndOrderedIds = dndOrderedColumns.map(c => c._id)
-        // console.log('dndOrderedIds: ', dndOrderedIds)
-        // console.log('dndOrderedColumns: ', dndOrderedColumns)
 
-        // Cập nhật lại state columns ban đầu sau khi đã kéo thả
+        /**
+         * Gội lên function moveColumns nằm ở component cha cao nhất (board/._id.jsx)
+         * Lưu ý: vầ sau ở học phần nâng cao thì chúng ta sẽ đưa dữ liệu Board ra ngoài Redux Global Stỏe
+         * Và lúc này chúng ta có thể gọi luôn API ở đây là xong thay vì phải lần lượt gọi ngược lên nhưungx
+         * component cha phía bên trên. (Đối với component con nằm càng sâu thì càng khổ)
+         * - Với việc sử dụng Redux như vậy thì code sẽ clen chuẩn hơn rất nhiều.
+         */
+        moveColumns(dndOrderedColumns)
+
+        // Vẫn goi Update State ở đay để tránh delay học flickering giao diện lúc kéo thả cần phải chờ gọi API (small trick)
         setOrderedColumns(dndOrderedColumns)
       }
     }
