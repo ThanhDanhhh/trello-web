@@ -1,8 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Box from '@mui/material/Box'
 import ListColumns from './ListColumns/ListColumns'
-import { mapOrder } from '~/utils/sorts'
-
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
 
@@ -31,7 +29,7 @@ const ACTIVIE_DRAG_ITEM_TYPE = {
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
+function BoardContent({ board, createNewColumn, createNewCard, moveColumns, moveCardInTheSameColumn }) {
   //https://docs.dndkit.com/api-documentation/sensors#usesensor
   // nếu dùng Pointersensor mặc định thì phải kết hợp với thuộc tính CSS touch-action: none ở những phần tử kéo thả - nhưng mà còn bug
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
@@ -58,7 +56,8 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
   const lastOverId = useRef(null)
 
   useEffect(() => {
-    setOrderedColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'))
+    // Columns đã được sắp xếp ở component cha cao nhất (boards/_id.jsx) (video 71 đã giải thích lý do)
+    setOrderedColumns(board.columns)
   }, [board])
 
   // Tìm một cái column theo cardId
@@ -224,7 +223,7 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
           activeDraggingCardData
         )
       } else {
-        // Hành động ekso tảh Card trong cùng 1 cái column
+        // Hành động kéo thả Card trong cùng 1 cái column
 
         // lấy vị trí cũ (từ thằng oldColumnWhenDraggingCard)
         const oldCardIndex = oldColumnWhenDraggingCard?.cards?.findIndex(c => c._id === activeDragItemId)
@@ -233,7 +232,9 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
 
         // Dùng arayMove vì kéo card trong 1 cái column thì tượng tự với logic kéo column trong một cái board content
         const dndOrderedCards = arrayMove(oldColumnWhenDraggingCard?.cards, oldCardIndex, newCardIndex)
+        const dndOrderedCardsIds = dndOrderedCards.map(card => card._id)
 
+        //Vẫn gọi update state ở đây tránh delay hoặc flickẻing giao diện lúc kéo thả cần phải chời gọi API (smaill trick)
         setOrderedColumns(preveColumns => {
           // Clone mảng OderedColumnsState cũ ra một cái mới để xử lý data rồi return - cập nhật lại OderedColumns mới
           const nextColumns = cloneDeep(preveColumns)
@@ -243,11 +244,19 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
 
           // Cập nhật lại 2 giá trị mới là card và carOrderIds trong cái targetColumn
           targetColumn.cards = dndOrderedCards
-          targetColumn.cardOrderIds = dndOrderedCards.map(card => card._id)
+          targetColumn.cardOrderIds = dndOrderedCardsIds
 
           // Trả về giá trị state mới (chuẩn vị trí)
           return nextColumns
         })
+        /**
+         * gọi lên prop function moveColumn nằm ở component cha cao nhất (board/._id.jsx)
+         * Lưu ý: Về sau ở học phần nâng cao thì chúng ta sữ đưa dữ liệu Board ra ngoài Redux GLobal Stỏe.
+         * Và lúc này chúng ta có thể gọi luôn API ở đây là xong thay vì phải lần lượt gọi ngược lên những
+         * component cha phía bên trên. (Đối với component con nằm càng sâu thì càng khổ).
+         * - Với việc sử dụng Redux như vậy thì code sẽ clean chuẩn chỉnh hơn rất nhiều.
+         */
+        moveCardInTheSameColumn(dndOrderedCards, dndOrderedCardsIds, oldColumnWhenDraggingCard._id)
       }
 
     }
@@ -265,6 +274,8 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
         // Code arrayMove ở đây: dnd-kit/packages/sortable/src/arrayMove.ts
         const dndOrderedColumns = arrayMove(oderedColumns, oldColumnIndex, newColumnIndex)
 
+        // Vẫn goi Update State ở đay để tránh delay học flickering giao diện lúc kéo thả cần phải chờ gọi API (small trick)
+        setOrderedColumns(dndOrderedColumns)
         /**
          * Gội lên function moveColumns nằm ở component cha cao nhất (board/._id.jsx)
          * Lưu ý: vầ sau ở học phần nâng cao thì chúng ta sẽ đưa dữ liệu Board ra ngoài Redux Global Stỏe
@@ -273,9 +284,6 @@ function BoardContent({ board, createNewColumn, createNewCard, moveColumns }) {
          * - Với việc sử dụng Redux như vậy thì code sẽ clen chuẩn hơn rất nhiều.
          */
         moveColumns(dndOrderedColumns)
-
-        // Vẫn goi Update State ở đay để tránh delay học flickering giao diện lúc kéo thả cần phải chờ gọi API (small trick)
-        setOrderedColumns(dndOrderedColumns)
       }
     }
 
