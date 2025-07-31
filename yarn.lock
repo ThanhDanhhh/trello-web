@@ -3242,6 +3242,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"material-ui-confirm@npm:^3.0.9":
+  version: 3.0.18
+  resolution: "material-ui-confirm@npm:3.0.18"
+  peerDependencies:
+    "@mui/material": ">= 5.0.0"
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: b6cde66a86d6f2566e4b0065e197aa3de62d40dcad989bfd07e861838af54ac8e4b6727b55024d89a130464eac3cb16d46bcf4e6785b17d4ebb4ad105d528e2d
+  languageName: node
+  linkType: hard
+
 "math-intrinsics@npm:^1.1.0":
   version: 1.1.0
   resolution: "math-intrinsics@npm:1.1.0"
@@ -4510,6 +4521,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     eslint-plugin-react-refresh: ^0.3.4
     lodash: ^4.17.21
+    material-ui-confirm: ^3.0.9
     react: ^18.2.0
     react-dom: ^18.2.0
     react-toastify: ^9.1.3
