@@ -112,7 +112,7 @@ function ListColumns({ columns, createNewColumn, createNewCard, deleteColumnDeta
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': { borderColor: 'white' },
                   '&:hover fieldset': { borderColor: 'white' },
-                  '&:Mui-focused fieldset': { borderColor: 'white' }
+                  '&.Mui-focused fieldset': { borderColor: 'white' }
 
                 }
               }}

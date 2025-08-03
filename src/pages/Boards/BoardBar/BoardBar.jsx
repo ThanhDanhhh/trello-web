@@ -22,7 +22,7 @@ const MENU_STYLES = {
     color: 'white'
   },
   '&:hover': {
-    bgcolor: 'primary.50',
+    bgcolor: 'primary.50'
   }
 }
 
