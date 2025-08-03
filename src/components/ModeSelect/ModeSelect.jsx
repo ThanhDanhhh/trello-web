@@ -36,7 +36,7 @@ function ModeSelect() {
           color: 'white',
           '.MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
-          '&:Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
           '.MuiSvgIcon-root': { color: 'white' }
         }}
       >
