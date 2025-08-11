@@ -4,14 +4,20 @@ import svgr from 'vite-plugin-svgr'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Cho phép thằng Vite sử dụng process.env, mặc định thì không mà sẽ dùng import.meta.env
+  // https://github.com/vitejs/vite/issues/1973
+  define: {
+    'process.env': process.env
+  },
+
   plugins: [
     react(),
-    svgr(),
+    svgr()
   ],
   // base: './'
   resolve: {
     alias: [
-      { find: '~', replacement: '/src' },
+      { find: '~', replacement: '/src' }
     ]
   }
 })
