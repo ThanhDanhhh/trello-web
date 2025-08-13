@@ -1,12 +1,9 @@
-/* eslint-disable quotes */
-/* eslint-disable no-console */
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
 
-// import { mockData } from '~/apis/mock-data'
 import {
   createNewColumnAPI,
   createNewCardAPI,
@@ -16,8 +13,7 @@ import {
   deleteColumnDetailsAPI
 } from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatters'
-import { isEmpty } from 'lodash'
-import { mapOrder } from '~/utils/sorts'
+import { cloneDeep } from 'lodash'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { Typography } from '@mui/material'
@@ -59,9 +55,28 @@ function Board() {
      * Lưu ý: Cách làm này phụ thuộc vào tùy chọn đặc thù dự án, có nơi thì BE sẽ hỗ trợ trả về luôn toàn bộ Board
      * dù đây là api tạo column hay Card đi chăng nữa. => Lúc này FE nhàn hơn.
      */
-    const newBoard = { ...board }
+
+    /** cách 1:
+     * Đoạn này sẽ dính lỗi object is not extensible bởi dù đã coppy/clone ra giá trị newBoard nhưng bản chất
+     * của spread opentor là Shallow Coppy/Clone, nếu dính phải rules Immutability trong Redux Toolkit không
+     * ta là dùng tiws Deep Copy/Clone toàn bộ cái Board cho dễ hiểu và code ngắn gọn.
+     * https://redux-toolkit.js.org/usage/immer-reducers
+     * Tài liệu thêm về Shollow và Deep Copy Object trong JS:
+     * https://www.javascripttutorial.net/object/3-ways-to-copy-objects-in-javascript/
+     */
+    const newBoard = cloneDeep(board)
     newBoard.columns.push(createdColumn)
     newBoard.columnOrderIds.push(createdColumn._id)
+
+    /** cách 2:
+     * Ngoài ra cách nữa là vẫn có thể dùng array.concat thay cho push như docs của Redux Toolkit ở trên vì
+     * push như đã nói nó sẽ thay đổi giá trị mảng trực tiếp, còn thằng concat thì nó merge - ghep mảng lại và
+     * tạo ra một mảng mới để chúng ta gán lại giá trị nên không vấn đề gì.
+     */
+    // const newBoard = { ...board }
+    // newBoard.columns = newBoard.columns.concat([createdColumn])
+    // newBoard.columnOrderIds = newBoard.columnOrderIds.concat([createdColumn._id])
+
     // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
   }
@@ -80,7 +95,9 @@ function Board() {
      * Lưu ý; Cách làm này phụ thuộc vào tùy lựa chọn và đặc thì dự án, có nơi thì BE hỗ trợ trả về luôn
      * toàn bộ Board dù đây có là api tạo column hay Card đi chăng nữa. => Lúc này FE sẽ nhàn hơn.
      */
-    const newBoard = { ...board }
+
+    // Tương tự hàm createNewColumn nên chỗ này dùng cloneDeep
+    const newBoard = cloneDeep(board)
     const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
     if (columnToUpdate) {
       // Nếu coulmn rỗng: bản chất là đang chứa một cái Placeholder Card (nhớ lại video 37.2, hiện tại là video 69)
@@ -105,6 +122,12 @@ function Board() {
   const moveColumns = (dndOrderedColumns) => {
     // Update cập nhật cho chuẩn dữ liệu State Board
     const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id)
+
+    /**
+     * Trường hợp dùng Spread Operator này thì lại không sao bởi vì ở đây chúng ta không dùng push như ở trên
+     * làm thay đổi trực tiếp kiểu mở rộng mảng, mà chỉ đang gán lại toàn bộ giá trị columns và columnOderIds
+     * bằng 2 mảng mới. Tương tự như cách làm concat ở trường hợp createNewColumn thôi.
+     */
     const newBoard = { ...board }
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
@@ -121,7 +144,13 @@ function Board() {
    */
   const moveCardInTheSameColumn = (dndOrderedCards, dndOrderedCardsIds, columnId) => {
     // Update cho chuẩn dữ liệu của state Board
-    const newBoard = { ...board }
+
+    /**
+     * Cannot assign to read nly property 'cards' of object
+     * Trường hợp Immutability ở đây đã đụng tới giá trị cards đang được coi là chỉ đọc read only - (nested
+     * object - can thiệp sâu dữ liệu)
+     */
+    const newBoard = cloneDeep(board)
     const columnToUpdate = newBoard.columns.find(column => column._id === columnId)
     if (columnToUpdate) {
       columnToUpdate.cards = dndOrderedCards
@@ -143,9 +172,9 @@ function Board() {
    * => Làm một API support riêng.
    */
   const moveCardToDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
-
     // Update cập nhật cho chuẩn dữ liệu State Board
     const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id)
+    // Tương tụ đoạn xử lý chỗ hàm moveColumn nên không ảnh hưởng Redux Toolkit Immutability gì ở đây cả.
     const newBoard = { ...board }
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
@@ -170,12 +199,12 @@ function Board() {
   // Xử lý xóa một column có cards bên trong nó
   const deleteColumnDetails = (columnId) => {
     // Update cập nhật cho chuẩn dữ liệu State Board
+    // Tương tụ đoạn xử lý chỗ hàm moveColumn nên không ảnh hưởng Redux Toolkit Immutability gì ở đây cả.
     const newBoard = { ...board }
     newBoard.columns = newBoard.columns.filter(c => c._id !== columnId)
     newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== columnId)
     // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
-
 
     // Gọi API xử lý phía BE
     deleteColumnDetailsAPI(columnId).then(res => {
