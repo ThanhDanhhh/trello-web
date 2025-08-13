@@ -5,19 +5,14 @@ import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
 
 import {
-  createNewColumnAPI,
-  createNewCardAPI,
   updateBoardDetailsAPI,
   updateColumnDetailsAPI,
-  moveCardToDifferentColumnAPI,
-  deleteColumnDetailsAPI
+  moveCardToDifferentColumnAPI
 } from '~/apis'
-import { generatePlaceholderCard } from '~/utils/formatters'
 import { cloneDeep } from 'lodash'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { Typography } from '@mui/material'
-import { toast } from 'react-toastify'
 import {
   fetchBoardDetailsAPI,
   updateCurrentActiveBoard,
@@ -27,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 function Board() {
   const dispatch = useDispatch()
+  // Không dùng state của component nữa mà chuyển qua dùng state cảu Redux
   // const [board, setBoard] = useState(null)
   const board = useSelector(selectCurrentActiveBoard)
 
@@ -36,84 +32,6 @@ function Board() {
     // Call API
     dispatch(fetchBoardDetailsAPI(boardId))
   }, [dispatch])
-
-  // function này có nhiệm vụ gọi API và làm lại dữ liệu State Board
-  const createNewColumn = async (newColumnData) => {
-    const createdColumn = await createNewColumnAPI({
-      ...newColumnData,
-      boardId: board._id
-    })
-
-    // Khi tạo column mới thì nó sẽ chưa có card, cần xử lý vấn đề kéo thả vào một column rỗng( Nhớ lại
-    // video 37.2,code hiện tại video 69)
-    createdColumn.cards = [generatePlaceholderCard(createdColumn)]
-    createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
-
-    // Cập nhật state board
-    /**
-     * Phía Font-end chúng ta làm đúng lại state data board( thay vì gọi lại api fetchBoardDetailsAPI)
-     * Lưu ý: Cách làm này phụ thuộc vào tùy chọn đặc thù dự án, có nơi thì BE sẽ hỗ trợ trả về luôn toàn bộ Board
-     * dù đây là api tạo column hay Card đi chăng nữa. => Lúc này FE nhàn hơn.
-     */
-
-    /** cách 1:
-     * Đoạn này sẽ dính lỗi object is not extensible bởi dù đã coppy/clone ra giá trị newBoard nhưng bản chất
-     * của spread opentor là Shallow Coppy/Clone, nếu dính phải rules Immutability trong Redux Toolkit không
-     * ta là dùng tiws Deep Copy/Clone toàn bộ cái Board cho dễ hiểu và code ngắn gọn.
-     * https://redux-toolkit.js.org/usage/immer-reducers
-     * Tài liệu thêm về Shollow và Deep Copy Object trong JS:
-     * https://www.javascripttutorial.net/object/3-ways-to-copy-objects-in-javascript/
-     */
-    const newBoard = cloneDeep(board)
-    newBoard.columns.push(createdColumn)
-    newBoard.columnOrderIds.push(createdColumn._id)
-
-    /** cách 2:
-     * Ngoài ra cách nữa là vẫn có thể dùng array.concat thay cho push như docs của Redux Toolkit ở trên vì
-     * push như đã nói nó sẽ thay đổi giá trị mảng trực tiếp, còn thằng concat thì nó merge - ghep mảng lại và
-     * tạo ra một mảng mới để chúng ta gán lại giá trị nên không vấn đề gì.
-     */
-    // const newBoard = { ...board }
-    // newBoard.columns = newBoard.columns.concat([createdColumn])
-    // newBoard.columnOrderIds = newBoard.columnOrderIds.concat([createdColumn._id])
-
-    // setBoard(newBoard)
-    dispatch(updateCurrentActiveBoard(newBoard))
-  }
-
-  // function này có nhiệm vụ gọi API và làm lại dữ liệu State Board
-  const createNewCard = async (newCardData) => {
-    const createdCard = await createNewCardAPI({
-      ...newCardData,
-      boardId: board._id
-    })
-
-    // Cập nhật state board
-    /**
-     * Phía Font-end chúng ta phải tự làm đúng lại state data board (thay vì phải gọi lại api
-     * fetchBoardDetailsAPI)
-     * Lưu ý; Cách làm này phụ thuộc vào tùy lựa chọn và đặc thì dự án, có nơi thì BE hỗ trợ trả về luôn
-     * toàn bộ Board dù đây có là api tạo column hay Card đi chăng nữa. => Lúc này FE sẽ nhàn hơn.
-     */
-
-    // Tương tự hàm createNewColumn nên chỗ này dùng cloneDeep
-    const newBoard = cloneDeep(board)
-    const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
-    if (columnToUpdate) {
-      // Nếu coulmn rỗng: bản chất là đang chứa một cái Placeholder Card (nhớ lại video 37.2, hiện tại là video 69)
-      if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
-        columnToUpdate.cards = [createdCard]
-        columnToUpdate.cardOrderIds.push(createdCard._id)
-      } else {
-        // Ngược lại Columns đã có data thì push vào cuối mảng
-        columnToUpdate.cards.push(createdCard)
-        columnToUpdate.cardOrderIds.push(createdCard._id)
-      }
-    }
-    // setBoard(newBoard)
-    dispatch(updateCurrentActiveBoard(newBoard))
-
-  }
 
   /**
    * function này có nhiệm vụ gọi API với xử lý khi kéo thả column xong xuôi
@@ -196,22 +114,6 @@ function Board() {
     })
   }
 
-  // Xử lý xóa một column có cards bên trong nó
-  const deleteColumnDetails = (columnId) => {
-    // Update cập nhật cho chuẩn dữ liệu State Board
-    // Tương tụ đoạn xử lý chỗ hàm moveColumn nên không ảnh hưởng Redux Toolkit Immutability gì ở đây cả.
-    const newBoard = { ...board }
-    newBoard.columns = newBoard.columns.filter(c => c._id !== columnId)
-    newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== columnId)
-    // setBoard(newBoard)
-    dispatch(updateCurrentActiveBoard(newBoard))
-
-    // Gọi API xử lý phía BE
-    deleteColumnDetailsAPI(columnId).then(res => {
-      toast.success(res?.deleteResult)
-    })
-  }
-
   if (!board) {
     return (
       <Box sx={{
@@ -235,12 +137,11 @@ function Board() {
       <BoardContent
         board={board}
 
-        createNewColumn={createNewColumn}
-        createNewCard={createNewCard}
+        // 3 Cái trường hợp move dưới đây thì giữ nguyên để code xử lý kéo thả ở phần BoardContent không bị
+        // quá dài mất kiểm soát khi đọc coe, maintain.
         moveColumns={moveColumns}
         moveCardInTheSameColumn={moveCardInTheSameColumn}
         moveCardToDifferentColumn={moveCardToDifferentColumn}
-        deleteColumnDetails={deleteColumnDetails}
       />
     </Container>
   )
