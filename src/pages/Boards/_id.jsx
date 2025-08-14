@@ -19,6 +19,7 @@ import {
   selectCurrentActiveBoard
 } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
 
 function Board() {
   const dispatch = useDispatch()
@@ -26,12 +27,14 @@ function Board() {
   // const [board, setBoard] = useState(null)
   const board = useSelector(selectCurrentActiveBoard)
 
+  const { boardId } = useParams()
+
   useEffect(() => {
     // Tạm thời fix cứng boardId, flow chuẩn chỉnh về sau khi học nâng cao là chúng ta sẽ sử dụng react-router-dm để lấy chuẩn boardId tuwd URL về
-    const boardId = '687f3ebfe86870680066c2f8'
+    // const boardId = '687f3ebfe86870680066c2f8'
     // Call API
     dispatch(fetchBoardDetailsAPI(boardId))
-  }, [dispatch])
+  }, [dispatch, boardId])
 
   /**
    * function này có nhiệm vụ gọi API với xử lý khi kéo thả column xong xuôi
