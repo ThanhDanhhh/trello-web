@@ -24,8 +24,8 @@ function LoginForm() {
 
   const { register, handleSubmit, formState: { errors } } = useForm()
 
-  const submitLogIn = () => {
-    console.log(' submitLogIn:', submitLogIn)
+  const submitLogIn = (data) => {
+    console.log(' submitLogIn:', data)
   }
 
   return (
