@@ -23,8 +23,8 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 function RegisterForm() {
   const { register, handleSubmit, formState: { errors }, watch } = useForm()
 
-  const submitRegister = () => {
-    console.log(' submitRegister:', submitRegister)
+  const submitRegister = (data) => {
+    console.log(' submitRegister:', data)
   }
 
   return (
